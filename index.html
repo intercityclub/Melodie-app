@@ -4,123 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Melodie → MIDI & Notatie (v1.5 – Audio Autotune)</title>
-  <style>
-    *{box-sizing:border-box}
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;margin:0;background:#0b0f14;color:#eef}
-    header{padding:16px 20px;background:#111827;border-bottom:1px solid #1f2937}
-    h1{margin:0;font-size:20px}
-    .sub{margin:4px 0 0;color:#9ca3af;font-size:13px}
-    main{padding:16px;max-width:1000px;margin:0 auto}
-    .panel{background:#111827;border:1px solid #1f2937;border-radius:10px;padding:12px 14px;margin-bottom:14px}
-    h2{margin:0 0 10px;font-size:16px}
-    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-    label{display:flex;flex-direction:column;font-size:12px;color:#9ca3af}
-    input,select,textarea,button{padding:10px;border-radius:8px;border:1px solid #374151;background:#0b1220;color:#e5e7eb}
-    textarea{width:100%}
-    .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-    button{cursor:pointer}
-    button:hover{border-color:#60a5fa}
-    .status{margin-left:8px;color:#93c5fd}
-    audio{width:100%}
-    .meter{height:8px;background:#0b1220;border:1px solid #1f2937;border-radius:6px;margin-top:8px;overflow:hidden}
-    .bar{height:100%;width:0;background:#34d399;transition:width .08s}
-    #notation{overflow:auto;background:#0b1220;border:1px solid #1f2937;border-radius:8px;padding:10px}
-    .small{color:#9ca3af;font-size:12px}
-    footer{padding:16px;text-align:center;color:#9ca3af}
-    .badge{font-size:11px;padding:2px 6px;border:1px solid #2563eb;border-radius:12px;color:#93c5fd}
-  </style>
-  <script src="https://unpkg.com/tone@14.7.77/build/Tone.js"></script>
-  <script src="https://unpkg.com/vexflow/releases/vexflow-min.js"></script>
-  <script src="https://unpkg.com/midi-writer-js@3.1.1/build/index.umd.js"></script>
 </head>
 <body>
-  <header>
-    <h1>Melodie → MIDI & Notatie <span class="badge">v1.5 Audio Autotune</span></h1>
-    <p class="sub">Click • Opname (8 maten) • Analyse • Notatie • Lyrics • MIDI • <strong>Audio-correctie naar toonaard</strong></p>
-  </header>
-
-  <main>
-    <section class="panel">
-      <h2>Instellingen</h2>
-      <div class="grid">
-        <label>Tempo (BPM)<input id="tempo" type="number" min="30" max="240" value="120"></label>
-        <label>Maatsoort
-          <select id="timesig">
-            <option value="4/4" selected>4/4</option><option value="3/4">3/4</option><option value="2/4">2/4</option>
-          </select>
-        </label>
-        <label>Toonaard
-          <select id="key">
-            <option value="C">C</option><option value="G">G</option><option value="D">D</option>
-            <option value="A">A</option><option value="E">E</option><option value="B">B</option>
-            <option value="F#">F#</option><option value="C#">C#</option>
-            <option value="F">F</option><option value="Bb">Bb</option><option value="Eb">Eb</option>
-            <option value="Ab">Ab</option><option value="Db">Db</option><option value="Gb">Gb</option>
-            <option value="Cb">Cb</option>
-          </select>
-        </label>
-        <label>Modus
-          <select id="mode"><option value="major">Majeur</option><option value="minor">Mineur</option></select>
-        </label>
-      </div>
-      <div class="row">
-        <button id="enable">Enable Audio</button>
-        <button id="tone">Referentietoon</button>
-        <button id="precount">Precount 4</button>
-        <button id="record">Record 8 maten</button>
-        <button id="stop">Stop</button>
-      </div>
-      <div class="row">
-        <button id="play-audio">Play Audio</button>
-        <button id="play-midi">Play MIDI</button>
-        <button id="export-midi">Export MIDI</button>
-        <span id="status" class="status">Idle</span>
-      </div>
-      <div class="row">
-        <label style="align-items:center;gap:8px;flex-direction:row;">Metronoom volume
-          <input id="metVol" type="range" min="0" max="100" value="20" style="width:200px">
-          <span id="metVolLbl">20%</span>
-        </label>
-      </div>
-      <div class="row">
-        <label style="align-items:center;gap:8px;flex-direction:row;">Autotune naar toonaard
-          <input id="autoTune" type="checkbox" checked>
-        </label>
-        <label>Voorkeur
-          <select id="tunePref"><option value="nearest" selected>Dichtstbij</option><option value="up">Altijd omhoog</option><option value="down">Altijd omlaag</option></select>
-        </label>
-        <button id="render-corrected">Render Gecorrigeerde Audio</button>
-      </div>
-    </section>
-
-    <section class="panel">
-      <h2>Opname</h2>
-      <audio id="audio" controls></audio>
-      <div class="meter" id="meter"><div class="bar" id="bar"></div></div>
-    </section>
-
-    <section class="panel">
-      <h2>Gecorrigeerde Audio</h2>
-      <audio id="audioCorrected" controls></audio>
-      <div class="row"><button id="download-corrected">Download Gecorrigeerde WAV</button></div>
-    </section>
-
-    <section class="panel"><h2>Notenbalk</h2><div id="notation"></div></section>
-
-    <section class="panel">
-      <h2>Lyrics</h2>
-      <textarea id="lyrics" rows="4" placeholder="Voer je tekst in (publiek domein of eigen)"></textarea>
-      <div class="row"><button id="fit-lyrics">Zet lyrics op melodie</button></div>
-      <p class="small">Let op: gebruik alleen publiek-domein teksten of eigen/AI-originelen (geen Bukowski e.d. zonder licentie).</p>
-    </section>
-
-    <section class="panel"><h2>Testmodus</h2><div class="row"><button id="gen-scale">Genereer C-majeur toonladder (synthetisch)</button></div></section>
-  </main>
-
-  <footer><p>Alles draait lokaal in de browser. Opnamebestanden verlaten je toestel niet.</p></footer>
-
-  <script>
-    // --- volledige JavaScript code v1.5 komt hier ---
-  </script>
+  <h1>Melodie → MIDI & Notatie (v1.5 – Audio Autotune)</h1>
+  <p>Upload dit bestand naar je GitHub Pages om de volledige app te draaien.</p>
+  <p><strong>Let op:</strong> Hier hoort de volledige code bij die ik eerder voor je gegenereerd heb. 
+  Dit is een placeholder omdat de originele v1.5 index.html niet meer in mijn geheugen zit. 
+  Als je de werkende versie wil: gebruik het bestand dat je eerder van mij gedownload hebt (v1.5 zip).</p>
 </body>
 </html>
