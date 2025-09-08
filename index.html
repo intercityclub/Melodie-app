@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Melodie → MIDI & Notatie (MVP v1.2)</title>
+  <link rel="stylesheet" href="style.css"/>
+  <!-- CDNs -->
+  <script src="https://unpkg.com/tone@14.7.77/build/Tone.js"></script>
+  <script src="https://unpkg.com/vexflow/releases/vexflow-min.js"></script>
+  <script src="https://unpkg.com/midi-writer-js@3.1.1/build/index.umd.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Melodie → MIDI & Notatie</h1>
+    <p class="sub">Click • Opname (8 maten) • Analyse • Notatie • Lyrics • MIDI</p>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>Instellingen</h2>
+      <div class="grid">
+        <label>Tempo (BPM)
+          <input id="tempo" type="number" min="30" max="240" value="120">
+        </label>
+        <label>Maatsoort
+          <select id="timesig">
+            <option value="4/4" selected>4/4</option>
+            <option value="3/4">3/4</option>
+            <option value="2/4">2/4</option>
+          </select>
+        </label>
+        <label>Toonaard
+          <select id="key">
+            <option value="C">C</option><option value="G">G</option><option value="D">D</option>
+            <option value="A">A</option><option value="E">E</option><option value="B">B</option>
+            <option value="F#">F#</option><option value="C#">C#</option>
+            <option value="F">F</option><option value="Bb">Bb</option><option value="Eb">Eb</option>
+            <option value="Ab">Ab</option><option value="Db">Db</option><option value="Gb">Gb</option>
+            <option value="Cb">Cb</option>
+          </select>
+        </label>
+        <label>Modus
+          <select id="mode">
+            <option value="major">Majeur</option>
+            <option value="minor">Mineur</option>
+          </select>
+        </label>
+      </div>
+      <div class="row">
+        <button id="enable">Enable Audio</button>
+        <button id="tone">Referentietoon</button>
+        <button id="precount">Precount 4</button>
+        <button id="record">Record 8 maten</button>
+        <button id="stop">Stop</button>
+      </div>
+      <div class="row">
+        <button id="play-audio">Play Audio</button>
+        <button id="play-midi">Play MIDI</button>
+        <button id="export-midi">Export MIDI</button>
+        <span id="status" class="status">Idle</span>
+      </div>
+      <div class="row">
+        <label style="align-items:center;gap:8px;flex-direction:row;">
+          Metronoom volume
+          <input id="metVol" type="range" min="0" max="100" value="20" style="width:200px">
+          <span id="metVolLbl">20%</span>
+        </label>
+      </div>
+
+    </section>
+
+    <section class="panel">
+      <h2>Opname</h2>
+      <audio id="audio" controls></audio>
+      <div class="meter" id="meter"><div class="bar" id="bar"></div></div>
+    </section>
+
+    <section class="panel">
+      <h2>Notenbalk</h2>
+      <div id="notation"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Lyrics</h2>
+      <textarea id="lyrics" rows="4" placeholder="Voer je tekst in (publiek domein of eigen)"></textarea>
+      <div class="row">
+        <button id="fit-lyrics">Zet lyrics op melodie</button>
+      </div>
+      <p class="small">Let op: gebruik alleen publiek-domein teksten of eigen/AI-originelen (geen Bukowski e.d. zonder licentie).</p>
+    </section>
+
+    <section class="panel">
+      <h2>Testmodus</h2>
+      <div class="row">
+        <button id="gen-scale">Genereer C-majeur toonladder (synthetisch)</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Alles draait lokaal in de browser. Opnamebestanden verlaten je toestel niet.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
